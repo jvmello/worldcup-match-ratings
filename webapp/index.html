@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>World Cup Match Ratings</title>
+<link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+<header class="topbar">
+  <h1>Notas da Copa 2026</h1>
+  <nav class="tabs" id="tabs">
+    <button class="tab active" data-view="overview">Visão geral</button>
+    <button class="tab" data-view="top">Melhores notas</button>
+    <button class="tab" data-view="teams">Por time</button>
+    <button class="tab" data-view="criteria">Por quesito</button>
+  </nav>
+</header>
+
+<main id="app">
+  <section id="view-overview" class="view active">
+    <div class="tiles" id="overview-tiles"></div>
+    <div class="panel">
+      <h2>Média por fase</h2>
+      <div id="phase-chart" class="chart"></div>
+    </div>
+  </section>
+
+  <section id="view-top" class="view">
+    <div class="panel">
+      <div class="filters">
+        <label>Fase
+          <select id="top-phase-filter"><option value="">Todas</option></select>
+        </label>
+        <label>Time
+          <input id="top-team-filter" type="text" placeholder="ex: Brasil" />
+        </label>
+      </div>
+      <div class="table-wrap">
+        <table id="top-table">
+          <thead>
+            <tr>
+              <th data-sort="match_number">#</th>
+              <th data-sort="phase">Fase</th>
+              <th data-sort="label">Partida</th>
+              <th data-sort="score">Placar</th>
+              <th data-sort="final_score" class="sortable sorted-desc">Nota final</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <section id="view-teams" class="view">
+    <div class="panel">
+      <div class="table-wrap">
+        <table id="teams-table">
+          <thead>
+            <tr>
+              <th data-sort="rank">#</th>
+              <th data-sort="team">Time</th>
+              <th data-sort="matches_played">Partidas</th>
+              <th data-sort="average_final_score" class="sortable sorted-desc">Nota média</th>
+              <th>Melhor partida</th>
+              <th>Pior partida</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <section id="view-criteria" class="view">
+    <div class="panel">
+      <h2>Média de cada quesito no torneio</h2>
+      <div id="criteria-chart" class="chart"></div>
+    </div>
+  </section>
+</main>
+
+<script src="app.js"></script>
+</body>
+</html>
