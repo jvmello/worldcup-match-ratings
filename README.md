@@ -1,5 +1,7 @@
 # World Cup Match Ratings
 
+*[Read this in English](README_en.md)*
+
 Notas pessoais e subjetivas para cada partida da Copa do Mundo 2026 — um
 quesito de 5 critérios, com pesos configuráveis, virando uma "nota final"
 por partida. É um projeto separado do `world-cup-analytics` (que é dados
@@ -65,6 +67,9 @@ navegador — os dados são relidos automaticamente (sem precisar reiniciar).
 Para usar a sua própria: `.venv/bin/python run.py caminho/para/sua-planilha.xlsx`.
 
 Este é o modo recomendado para quem só quer testar com a própria planilha.
+O dashboard tem um botão **EN/PT** no canto superior direito — a planilha
+continua em português por baixo, mas a interface (times, fases, quesitos,
+textos) é traduzida na hora, sem recarregar a página.
 
 > **Debian/Ubuntu:** se `python3 -m venv .venv` falhar com "ensurepip is not
 > available", falta o pacote de venv da sua versão do sistema —
@@ -90,6 +95,7 @@ src/match_ratings/
   api.py          # FastAPI compartilhada pelos dois modos
   db/             # schema, loader e importer do modo hospedado
 webapp/           # dashboard estático (HTML/CSS/JS puro, sem build step)
+  i18n.js         # tradução PT/EN da interface (times, fases, quesitos, textos), só de exibição
 run.py            # entrypoint do modo local
 hosted.py         # entrypoint do modo hospedado
 tests/            # valida o loader e as agregações contra a planilha real

@@ -8,12 +8,13 @@
 </head>
 <body>
 <header class="topbar">
-  <h1>Notas da Copa 2026</h1>
+  <h1 data-i18n="title">Notas da Copa 2026</h1>
   <nav class="tabs" id="tabs">
-    <button class="tab active" data-view="dashboards">Dashboards</button>
-    <button class="tab" data-view="top">Melhores notas</button>
-    <button class="tab" data-view="teams">Por time</button>
-    <button class="tab" data-view="criteria">Por quesito</button>
+    <button class="tab active" data-view="dashboards" data-i18n="tab_dashboards">Dashboards</button>
+    <button class="tab" data-view="top" data-i18n="tab_top">Melhores notas</button>
+    <button class="tab" data-view="teams" data-i18n="tab_teams">Por time</button>
+    <button class="tab" data-view="criteria" data-i18n="tab_criteria">Por quesito</button>
+    <button class="tab lang-toggle" id="lang-toggle" data-i18n="lang_toggle">EN</button>
   </nav>
 </header>
 
@@ -21,7 +22,7 @@
   <section id="view-dashboards" class="view active">
     <div class="tiles" id="dashboards-tiles"></div>
     <div class="panel">
-      <h2>Média por fase</h2>
+      <h2 data-i18n="phase_avg_title">Média por fase</h2>
       <div id="phase-chart" class="chart"></div>
     </div>
     <div class="dash-grid" id="dashboards-grid"></div>
@@ -30,27 +31,27 @@
   <section id="view-top" class="view">
     <div class="panel">
       <div class="filters">
-        <label>Fase
-          <select id="top-phase-filter"><option value="">Todas</option></select>
+        <label><span data-i18n="filter_phase_label">Fase</span>
+          <select id="top-phase-filter"></select>
         </label>
-        <label>Time
-          <input id="top-team-filter" type="text" placeholder="ex: Brasil" />
+        <label><span data-i18n="filter_team_label">Time</span>
+          <input id="top-team-filter" type="text" data-i18n-placeholder="filter_team_placeholder" placeholder="ex: Brasil" />
         </label>
       </div>
       <div class="table-wrap">
         <table id="top-table">
           <thead>
             <tr>
-              <th>#</th>
-              <th data-sort="phase">Fase</th>
-              <th data-sort="label">Partida</th>
-              <th data-sort="score">Placar</th>
-              <th data-sort="first_half">1ºT</th>
-              <th data-sort="second_half">2ºT</th>
-              <th data-sort="back_and_forth">Lá e cá</th>
-              <th data-sort="emotion">Emoção</th>
-              <th data-sort="historic_component">Histórico</th>
-              <th data-sort="final_score" class="sortable sorted-desc">Nota final</th>
+              <th data-i18n="th_hash">#</th>
+              <th data-sort="phase" data-i18n="th_phase">Fase</th>
+              <th data-sort="label" data-i18n="th_match">Partida</th>
+              <th data-sort="score" data-i18n="th_score">Placar</th>
+              <th data-sort="first_half" data-i18n-criterion="first_half">1ºT</th>
+              <th data-sort="second_half" data-i18n-criterion="second_half">2ºT</th>
+              <th data-sort="back_and_forth" data-i18n-criterion="back_and_forth">Lá e cá</th>
+              <th data-sort="emotion" data-i18n-criterion="emotion">Emoção</th>
+              <th data-sort="historic_component" data-i18n-criterion="historic_component">Histórico</th>
+              <th data-sort="final_score" class="sortable sorted-desc" data-i18n="th_final_score">Nota final</th>
             </tr>
           </thead>
           <tbody></tbody>
@@ -65,12 +66,12 @@
         <table id="teams-table">
           <thead>
             <tr>
-              <th data-sort="rank">#</th>
-              <th data-sort="team">Time</th>
-              <th data-sort="matches_played">Partidas</th>
-              <th data-sort="average_final_score" class="sortable sorted-desc">Nota média</th>
-              <th>Melhor partida</th>
-              <th>Pior partida</th>
+              <th data-i18n="th_hash">#</th>
+              <th data-sort="team" data-i18n="th_team">Time</th>
+              <th data-sort="matches_played" data-i18n="th_matches_played">Partidas</th>
+              <th data-sort="average_final_score" class="sortable sorted-desc" data-i18n="th_avg_score">Nota média</th>
+              <th data-i18n="th_best_match">Melhor partida</th>
+              <th data-i18n="th_worst_match">Pior partida</th>
             </tr>
           </thead>
           <tbody></tbody>
@@ -81,17 +82,18 @@
 
   <section id="view-criteria" class="view">
     <div class="panel">
-      <h2>Média de cada quesito no torneio</h2>
+      <h2 data-i18n="criteria_avg_title">Média de cada quesito no torneio</h2>
       <div id="criteria-chart" class="chart"></div>
     </div>
     <div class="panel">
-      <h2>Notas 10 por quesito</h2>
-      <p class="hint">Partidas que tiraram nota máxima em cada quesito individualmente.</p>
+      <h2 data-i18n="tens_title">Notas 10 por quesito</h2>
+      <p class="hint" data-i18n="tens_hint">Partidas que tiraram nota máxima em cada quesito individualmente.</p>
       <div id="criteria-tens" class="tens-grid"></div>
     </div>
   </section>
 </main>
 
+<script src="i18n.js"></script>
 <script src="app.js"></script>
 </body>
 </html>
