@@ -3,15 +3,20 @@ from match_ratings.xlsx_loader import load_workbook_data
 
 
 def test_summary_mirrors_resumo_sheet(workbook_path):
-    """The Resumo sheet caches B5=103 (partidas avaliadas) and B6=6.63
-    (média geral) for this workbook; aggregate.summary must reproduce them
-    without recomputing anything from the raw scores."""
+    """aggregate.summary must reproduce whatever the Resumo sheet's own
+    cached formulas currently say — compared live against the sheet rather
+    than a frozen snapshot, since the personal workbook keeps changing as
+    more matches get rated."""
+    import openpyxl
+
     matches, _weights, _bands = load_workbook_data(workbook_path)
     s = agg.summary(matches)
 
-    assert s.total_matches == 104
-    assert s.rated_matches == 103
-    assert s.overall_average == 6.63
+    resumo = openpyxl.load_workbook(workbook_path, data_only=True)["Resumo"]
+    assert s.rated_matches == resumo["B5"].value
+    assert s.overall_average == resumo["B6"].value
+    assert s.highest_score == resumo["B7"].value
+    assert s.lowest_score == resumo["B8"].value
 
 
 def test_top_matches_is_sorted_descending_and_all_rated(workbook_path):
@@ -60,3 +65,54 @@ def test_filter_matches_by_phase_and_team(workbook_path):
 
     brazil_matches = agg.filter_matches(matches, team="brasil")
     assert all("brasil" in m.home_team.lower() or "brasil" in m.away_team.lower() for m in brazil_matches)
+
+
+def test_top_teams_extends_past_limit_on_ties(workbook_path):
+    matches, _weights, _bands = load_workbook_data(workbook_path)
+
+    top10 = agg.top_teams(matches, limit=10)
+    all_teams = agg.team_stats(matches)
+    cutoff = top10[-1].average_final_score
+    expected_count = sum(1 for t in all_teams if t.average_final_score >= cutoff)
+
+    assert len(top10) == expected_count
+    assert len(top10) >= 10
+    scores = [t.average_final_score for t in top10]
+    assert scores == sorted(scores, reverse=True)
+
+
+def test_top_teams_ascending_gives_worst_first(workbook_path):
+    matches, _weights, _bands = load_workbook_data(workbook_path)
+
+    worst10 = agg.top_teams(matches, limit=10, ascending=True)
+    best10 = agg.top_teams(matches, limit=10, ascending=False)
+
+    assert worst10[0].average_final_score <= worst10[-1].average_final_score
+    assert worst10[0].team != best10[0].team
+
+
+def test_criterion_ranking_extends_past_limit_on_ties(workbook_path):
+    matches, _weights, _bands = load_workbook_data(workbook_path)
+
+    top10_emotion = agg.criterion_ranking(matches, "emotion", limit=10)
+    assert all(m.scores["emotion"] is not None for m in top10_emotion)
+    scores = [m.scores["emotion"] for m in top10_emotion]
+    assert scores == sorted(scores, reverse=True)
+    # "emotion" has more than 10 matches scoring a 10 (see the earlier
+    # perfect-10 test), so the tie-break must have pulled in extras.
+    assert len(top10_emotion) > 10
+
+    worst10_first_half = agg.criterion_ranking(matches, "first_half", limit=10, ascending=True)
+    scores2 = [m.scores["first_half"] for m in worst10_first_half]
+    assert scores2 == sorted(scores2)
+
+
+def test_filter_matches_by_criterion_score(workbook_path):
+    matches, _weights, _bands = load_workbook_data(workbook_path)
+
+    perfect_emotion = agg.filter_matches(matches, criterion="emotion", criterion_min=10)
+    assert len(perfect_emotion) > 0
+    assert all(m.scores["emotion"] == 10 for m in perfect_emotion)
+
+    low_first_half = agg.filter_matches(matches, criterion="first_half", criterion_max=3)
+    assert all(m.scores["first_half"] is not None and m.scores["first_half"] <= 3 for m in low_first_half)

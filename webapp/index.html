@@ -10,7 +10,7 @@
 <header class="topbar">
   <h1>Notas da Copa 2026</h1>
   <nav class="tabs" id="tabs">
-    <button class="tab active" data-view="overview">Visão geral</button>
+    <button class="tab active" data-view="dashboards">Dashboards</button>
     <button class="tab" data-view="top">Melhores notas</button>
     <button class="tab" data-view="teams">Por time</button>
     <button class="tab" data-view="criteria">Por quesito</button>
@@ -18,12 +18,13 @@
 </header>
 
 <main id="app">
-  <section id="view-overview" class="view active">
-    <div class="tiles" id="overview-tiles"></div>
+  <section id="view-dashboards" class="view active">
+    <div class="tiles" id="dashboards-tiles"></div>
     <div class="panel">
       <h2>Média por fase</h2>
       <div id="phase-chart" class="chart"></div>
     </div>
+    <div class="dash-grid" id="dashboards-grid"></div>
   </section>
 
   <section id="view-top" class="view">
@@ -40,10 +41,15 @@
         <table id="top-table">
           <thead>
             <tr>
-              <th data-sort="match_number">#</th>
+              <th>#</th>
               <th data-sort="phase">Fase</th>
               <th data-sort="label">Partida</th>
               <th data-sort="score">Placar</th>
+              <th data-sort="first_half">1ºT</th>
+              <th data-sort="second_half">2ºT</th>
+              <th data-sort="back_and_forth">Lá e cá</th>
+              <th data-sort="emotion">Emoção</th>
+              <th data-sort="historic_component">Histórico</th>
               <th data-sort="final_score" class="sortable sorted-desc">Nota final</th>
             </tr>
           </thead>
@@ -77,6 +83,11 @@
     <div class="panel">
       <h2>Média de cada quesito no torneio</h2>
       <div id="criteria-chart" class="chart"></div>
+    </div>
+    <div class="panel">
+      <h2>Notas 10 por quesito</h2>
+      <p class="hint">Partidas que tiraram nota máxima em cada quesito individualmente.</p>
+      <div id="criteria-tens" class="tens-grid"></div>
     </div>
   </section>
 </main>

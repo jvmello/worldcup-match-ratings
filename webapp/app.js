@@ -37,7 +37,7 @@ document.getElementById("tabs").addEventListener("click", (e) => {
   document.getElementById(`view-${btn.dataset.view}`).classList.add("active");
 });
 
-// ---- overview ----
+// ---- shared chart/tile rendering ----
 function renderBarChart(container, rows, { labelKey, valueKey, max }) {
   container.innerHTML = "";
   if (!rows.length) {
@@ -58,9 +58,7 @@ function renderBarChart(container, rows, { labelKey, valueKey, max }) {
   }
 }
 
-async function loadOverview() {
-  const summary = await getJSON("/api/summary");
-  const tiles = document.getElementById("overview-tiles");
+function renderTiles(container, summary) {
   const tileData = [
     ["Total de partidas", summary.total_matches],
     ["Partidas avaliadas", summary.rated_matches],
@@ -68,15 +66,9 @@ async function loadOverview() {
     ["Maior nota", summary.highest_score?.toFixed(2) ?? "—"],
     ["Menor nota", summary.lowest_score?.toFixed(2) ?? "—"],
   ];
-  tiles.innerHTML = tileData
+  container.innerHTML = tileData
     .map(([label, value]) => `<div class="tile"><div class="label">${label}</div><div class="value">${value}</div></div>`)
     .join("");
-
-  renderBarChart(document.getElementById("phase-chart"), summary.by_phase, {
-    labelKey: "phase",
-    valueKey: "average_final_score",
-    max: 10,
-  });
 }
 
 // ---- top matches ----
@@ -91,10 +83,12 @@ function sortRows(rows, key, asc) {
   });
 }
 
+const CRITERIA_KEYS = ["first_half", "second_half", "back_and_forth", "emotion", "historic_component"];
+
 function renderTopTable(rows) {
   const tbody = document.querySelector("#top-table tbody");
   const sorted = sortRows(
-    rows.map((m) => ({ ...m, label: matchLabel(m) })),
+    rows.map((m) => ({ ...m, ...m.scores, label: matchLabel(m) })),
     state.topSort.key,
     state.topSort.asc
   );
@@ -102,10 +96,11 @@ function renderTopTable(rows) {
     .map(
       (m, i) => `
     <tr class="${i < 10 ? "top10" : ""}">
-      <td>${m.match_number}</td>
+      <td>${i + 1}</td>
       <td>${m.phase}</td>
       <td>${m.label}</td>
       <td>${m.score ?? "—"}</td>
+      ${CRITERIA_KEYS.map((k) => `<td>${scoreBadge(m[k])}</td>`).join("")}
       <td>${scoreBadge(m.final_score)}</td>
     </tr>`
     )
@@ -193,6 +188,70 @@ async function loadCriteria() {
     valueKey: "average",
     max: 10,
   });
+  await renderCriteriaTens(rows);
+}
+
+async function renderCriteriaTens(criteria) {
+  const container = document.getElementById("criteria-tens");
+  const perCriterion = await Promise.all(
+    criteria.map((c) => getJSON(`/api/matches?criterion=${c.criterion}&criterion_min=10`))
+  );
+  container.innerHTML = criteria
+    .map((c, i) => {
+      const tens = perCriterion[i];
+      const chips = tens
+        .map((m) => `<span class="chip">${m.phase} · ${matchLabel(m)} <b>${scoreBadge(m.final_score)}</b></span>`)
+        .join("");
+      return `
+        <div class="tens-card">
+          <div class="tens-card-header">
+            <span class="tens-card-title">${c.label}</span>
+            <span class="tens-card-count">${tens.length}</span>
+          </div>
+          <div class="chip-list">${chips || '<span class="empty-inline">Nenhuma partida com nota 10 aqui ainda.</span>'}</div>
+        </div>`;
+    })
+    .join("");
+}
+
+// ---- dashboards ----
+function dashPanel(title, rows, labelKey, valueKey) {
+  const panel = document.createElement("div");
+  panel.className = "panel";
+  panel.innerHTML = `<h2>${title}</h2><div class="chart"></div>`;
+  renderBarChart(panel.querySelector(".chart"), rows, { labelKey, valueKey, max: 10 });
+  return panel;
+}
+
+async function loadDashboards() {
+  const summary = await getJSON("/api/summary");
+  renderTiles(document.getElementById("dashboards-tiles"), summary);
+  renderBarChart(document.getElementById("phase-chart"), summary.by_phase, {
+    labelKey: "phase",
+    valueKey: "average_final_score",
+    max: 10,
+  });
+
+  const grid = document.getElementById("dashboards-grid");
+  grid.innerHTML = "";
+
+  const [bestTeams, worstTeams] = await Promise.all([
+    getJSON("/api/teams/top?limit=10&ascending=false"),
+    getJSON("/api/teams/top?limit=10&ascending=true"),
+  ]);
+  grid.appendChild(dashPanel("Top melhores times", bestTeams, "team", "average_final_score"));
+  grid.appendChild(dashPanel("Top piores times", worstTeams, "team", "average_final_score"));
+
+  const criteria = await getJSON("/api/criteria");
+  for (const c of criteria) {
+    const [best, worst] = await Promise.all([
+      getJSON(`/api/matches/by-criterion?criterion=${c.criterion}&limit=10&ascending=false`),
+      getJSON(`/api/matches/by-criterion?criterion=${c.criterion}&limit=10&ascending=true`),
+    ]);
+    const withValue = (rows) => rows.map((m) => ({ ...m, __label: matchLabel(m), __value: m.scores[c.criterion] }));
+    grid.appendChild(dashPanel(`Top melhores — ${c.label}`, withValue(best), "__label", "__value"));
+    grid.appendChild(dashPanel(`Top piores — ${c.label}`, withValue(worst), "__label", "__value"));
+  }
 }
 
 function debounce(fn, ms) {
@@ -206,7 +265,7 @@ function debounce(fn, ms) {
 async function main() {
   const meta = await getJSON("/api/meta");
   state.colorBands = meta.color_bands;
-  await Promise.all([loadOverview(), loadTop(), loadTeams(), loadCriteria()]);
+  await Promise.all([loadDashboards(), loadTop(), loadTeams(), loadCriteria()]);
 }
 
 main().catch((err) => {

@@ -155,3 +155,55 @@ tbody tr.top10 td:first-child { font-weight: 700; }
 .bar-row .bar-value { font-size: 0.85rem; font-variant-numeric: tabular-nums; color: var(--text-secondary); }
 
 .empty { color: var(--text-muted); font-size: 0.9rem; padding: 24px; text-align: center; }
+
+.dash-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(420px, 1fr));
+  gap: 12px;
+  margin-top: 16px;
+}
+.dash-grid .panel { margin-top: 0; }
+.dash-grid .bar-row { grid-template-columns: 190px 1fr 48px; }
+.dash-grid .bar-label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.hint { color: var(--text-muted); font-size: 0.82rem; margin: -6px 0 14px; }
+
+.tens-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 12px;
+}
+.tens-card {
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 12px 14px;
+}
+.tens-card-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+.tens-card-title { font-weight: 600; font-size: 0.88rem; }
+.tens-card-count {
+  font-variant-numeric: tabular-nums;
+  color: var(--text-muted);
+  font-size: 0.8rem;
+}
+.chip-list { display: flex; flex-wrap: wrap; gap: 6px; }
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: var(--hover-wash);
+  border-radius: 999px;
+  padding: 3px 10px 3px 10px;
+  font-size: 0.78rem;
+  color: var(--text-secondary);
+  white-space: nowrap;
+}
+.empty-inline { color: var(--text-muted); font-size: 0.82rem; }

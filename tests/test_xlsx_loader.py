@@ -26,8 +26,14 @@ def test_final_score_matches_spreadsheet_formula(workbook_path):
     assert match.final_score == expected
 
 
-def test_unrated_future_match_has_no_final_score(workbook_path):
+def test_final_score_presence_matches_criteria_completeness(workbook_path):
+    """The sheet's own formula is IF(COUNT(F:J)<5,"",...) — a match has a
+    final score if and only if all 5 criteria are filled in. Checked as an
+    invariant over every match rather than against one hardcoded match
+    number, since which matches are rated changes as the workbook is
+    filled in over time."""
     matches, _weights, _bands = load_workbook_data(workbook_path)
-    final = next(m for m in matches if m.phase == "Final" and m.match_number == 104)
-    assert final.final_score is None
-    assert final.is_rated is False
+    for m in matches:
+        all_criteria_filled = all(v is not None for v in m.scores.values())
+        assert (m.final_score is not None) == all_criteria_filled
+        assert m.is_rated == all_criteria_filled

@@ -6,13 +6,29 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from statistics import mean
-from typing import Optional
+from typing import Callable, Optional, TypeVar
 
 from .models import CRITERIA, CRITERIA_LABELS_PT, CriteriaWeight, Match
+
+T = TypeVar("T")
 
 
 def rated(matches: list[Match]) -> list[Match]:
     return [m for m in matches if m.is_rated]
+
+
+def _top_with_ties(items: list[T], key: Callable[[T], float], limit: int, reverse: bool = True) -> list[T]:
+    """Top `limit` items by key, but if the item(s) right at the cutoff tie
+    with the last one kept, keep those too — a dashboard ranking shouldn't
+    arbitrarily split a tied group in half."""
+    ordered = sorted(items, key=key, reverse=reverse)
+    if len(ordered) <= limit:
+        return ordered
+    cutoff_value = key(ordered[limit - 1])
+    extra = 0
+    while limit + extra < len(ordered) and key(ordered[limit + extra]) == cutoff_value:
+        extra += 1
+    return ordered[: limit + extra]
 
 
 @dataclass(frozen=True)
@@ -106,6 +122,19 @@ def team_stats(matches: list[Match]) -> list[TeamStat]:
     return sorted(stats, key=lambda t: t.average_final_score, reverse=True)
 
 
+def top_teams(matches: list[Match], limit: int = 10, ascending: bool = False) -> list[TeamStat]:
+    """Best (or, with ascending=True, worst) teams by average final score.
+    Extends past `limit` to include any team tied with the cutoff."""
+    return _top_with_ties(team_stats(matches), key=lambda t: t.average_final_score, limit=limit, reverse=not ascending)
+
+
+def criterion_ranking(matches: list[Match], criterion: str, limit: int = 10, ascending: bool = False) -> list[Match]:
+    """Best (or worst) matches by a single criterion's own score — independent
+    of the final weighted score. Extends past `limit` on ties."""
+    scored = [m for m in matches if m.scores.get(criterion) is not None]
+    return _top_with_ties(scored, key=lambda m: m.scores[criterion], limit=limit, reverse=not ascending)
+
+
 def criteria_averages(matches: list[Match], weights: list[CriteriaWeight]) -> list[CriterionAverage]:
     """Average of each of the 5 criteria across every rated match, alongside
     its current weight, in Quesitos sheet order."""
@@ -130,7 +159,13 @@ def filter_matches(
     team: Optional[str] = None,
     min_score: Optional[float] = None,
     max_score: Optional[float] = None,
+    criterion: Optional[str] = None,
+    criterion_min: Optional[float] = None,
+    criterion_max: Optional[float] = None,
 ) -> list[Match]:
+    """criterion_min/criterion_max filter on a single criterion's own score
+    (e.g. criterion="emotion", criterion_min=10 -> every match that scored
+    a perfect 10 on "Emoção"), independent of the final weighted score."""
     result = matches
     if phase:
         result = [m for m in result if m.phase == phase]
@@ -141,4 +176,8 @@ def filter_matches(
         result = [m for m in result if m.final_score is not None and m.final_score >= min_score]
     if max_score is not None:
         result = [m for m in result if m.final_score is not None and m.final_score <= max_score]
+    if criterion and criterion_min is not None:
+        result = [m for m in result if m.scores.get(criterion) is not None and m.scores[criterion] >= criterion_min]
+    if criterion and criterion_max is not None:
+        result = [m for m in result if m.scores.get(criterion) is not None and m.scores[criterion] <= criterion_max]
     return result

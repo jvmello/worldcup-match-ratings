@@ -49,20 +49,42 @@ def create_app(data_source: DataSource, allowed_origins: Optional[list[str]] = N
         matches, _weights, _bands = data_source.load()
         return agg.team_stats(matches)
 
+    @app.get("/api/teams/top")
+    def teams_top(limit: int = 10, ascending: bool = False):
+        matches, _weights, _bands = data_source.load()
+        return agg.top_teams(matches, limit=limit, ascending=ascending)
+
     @app.get("/api/matches")
     def matches(
         phase: Optional[str] = None,
         team: Optional[str] = None,
         min_score: Optional[float] = Query(default=None, alias="min_score"),
         max_score: Optional[float] = Query(default=None, alias="max_score"),
+        criterion: Optional[str] = None,
+        criterion_min: Optional[float] = Query(default=None, alias="criterion_min"),
+        criterion_max: Optional[float] = Query(default=None, alias="criterion_max"),
     ):
         all_matches, _weights, _bands = data_source.load()
-        return agg.filter_matches(all_matches, phase=phase, team=team, min_score=min_score, max_score=max_score)
+        return agg.filter_matches(
+            all_matches,
+            phase=phase,
+            team=team,
+            min_score=min_score,
+            max_score=max_score,
+            criterion=criterion,
+            criterion_min=criterion_min,
+            criterion_max=criterion_max,
+        )
 
     @app.get("/api/matches/top")
     def matches_top(limit: int = 10, ascending: bool = False):
         all_matches, _weights, _bands = data_source.load()
         return agg.top_matches(all_matches, limit=limit, ascending=ascending)
+
+    @app.get("/api/matches/by-criterion")
+    def matches_by_criterion(criterion: str, limit: int = 10, ascending: bool = False):
+        all_matches, _weights, _bands = data_source.load()
+        return agg.criterion_ranking(all_matches, criterion=criterion, limit=limit, ascending=ascending)
 
     if WEBAPP_DIR.exists():
         app.mount("/", StaticFiles(directory=WEBAPP_DIR, html=True), name="webapp")
