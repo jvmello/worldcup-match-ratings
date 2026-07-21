@@ -1,109 +1,116 @@
 # World Cup Match Ratings
 
-*[Read this in English](README_en.md)*
+*[Leia em português](README_pt.md)*
 
-Notas pessoais e subjetivas para cada partida da Copa do Mundo 2026 — um
-quesito de 5 critérios, com pesos configuráveis, virando uma "nota final"
-por partida. É um projeto separado do `world-cup-analytics` (que é dados
-objetivos via API); este aqui é opinativo, e o objetivo principal é
-**reprodutibilidade**: qualquer pessoa consegue clonar e rodar na própria
-máquina, sem depender de infra nenhuma, e fazer a mesma coisa com as
-próprias notas.
+Personal, subjective ratings for every match of the 2026 World Cup — 5
+criteria per match, with configurable weights, rolled up into a "final
+score" per match. This is a separate project from `world-cup-analytics`
+(which is objective data via an API); this one is opinionated, and the
+main goal is **reproducibility**: anyone can clone it and run it on their
+own machine, with no infrastructure required, and do the same thing with
+their own ratings.
 
-## A fonte da verdade é a planilha
+## The spreadsheet is the source of truth
 
-[`Notas_da_Copa_2026.xlsx`](Notas_da_Copa_2026.xlsx) tem uma aba por fase
-do torneio (Fase de grupos, 16 avos, Oitavas, Quartas, Semifinais, 3º
-lugar, Final) mais duas abas de configuração:
+[`Notas_da_Copa_2026.xlsx`](Notas_da_Copa_2026.xlsx) has one sheet per
+tournament phase (group stage, round of 32, round of 16, quarterfinals,
+semifinals, third place, final) plus two configuration sheets:
 
-- **Quesitos**: os 5 critérios avaliados em cada partida, de 0 a 10, e o
-  peso de cada um na nota final — editável, tudo recalcula sozinho:
+- **Quesitos** ("Criteria"): the 5 criteria scored for every match, 0 to
+  10, and each one's weight in the final score — editable, everything else
+  recalculates on its own:
 
-  | Quesito | Peso |
+  | Criterion | Weight |
   |---|---|
-  | 1º tempo | 2.5 |
-  | 2º tempo | 2.5 |
-  | Lá e cá (alternância, ataques dos dois lados, ritmo) | 2.0 |
-  | Emoção (tensão, viradas, gols tardios, drama) | 2.0 |
-  | Componente histórico (zebras, recordes, rivalidade) | 1.0 |
+  | First half | 2.5 |
+  | Second half | 2.5 |
+  | Back and forth (both sides attacking, pace, open game) | 2.0 |
+  | Emotion (tension, comebacks, late goals, drama) | 2.0 |
+  | Historic component (upsets, records, rivalry) | 1.0 |
 
-  Nota final = média ponderada dos 5 quesitos pelos pesos acima,
-  arredondada a 2 casas — fórmula de cada partida em `K3` de cada aba de
-  fase. A mesma aba também tem a legenda de cores (0–1,99 roxo, 2–4,99
-  vermelho, 5–6,99 âmbar, 7–8,99 azul, 9–10 verde) usada nas duas
-  ferramentas deste repositório.
+  Final score = weighted average of the 5 criteria using the weights
+  above, rounded to 2 decimals — each match's formula lives in `K3` of its
+  phase sheet. The same sheet also has the color legend (0–1.99 purple,
+  2–4.99 red, 5–6.99 amber, 7–8.99 blue, 9–10 green) used by both tools in
+  this repository.
 
-- **Resumo**: agregados gerais (total de partidas, média geral, maior e
-  menor nota) via fórmulas que leem as outras abas.
+- **Resumo** ("Summary"): overall aggregates (total matches, overall
+  average, highest and lowest score) via formulas that read the other
+  sheets.
 
-Este repositório **nunca recalcula a nota final** — ele lê o valor que a
-própria planilha já calculou. A planilha manda; o código só lê, agrega e
-exibe.
+This repository **never recomputes the final score** — it reads whatever
+value the spreadsheet itself already calculated. The spreadsheet is the
+authority; the code only reads, aggregates, and displays.
 
-## Faça a sua
+## Make your own
 
-Modelos em branco (mesmo calendário de jogos e placares, quesitos e pesos
-padrão, só as 5 notas em branco para você preencher):
+Blank templates (same fixtures and scores, default criteria and weights,
+just the 5 rating columns left blank for you to fill in):
 
 - [`templates_blank/Notas_da_Copa_2026_modelo_PT.xlsx`](templates_blank/Notas_da_Copa_2026_modelo_PT.xlsx)
 - [`templates_blank/World_Cup_2026_match_ratings_template_EN.xlsx`](templates_blank/World_Cup_2026_match_ratings_template_EN.xlsx)
 
-Regenere-os a partir da planilha preenchida com
+Regenerate them from the filled-in spreadsheet with
 `python scripts/generate_blank_templates.py`.
 
-## Modo local — "tente você também"
+## Local mode — "try it yourself"
 
-Sem Docker, sem banco de dados: lê o `.xlsx` direto do disco e sobe um
-dashboard no navegador.
+No Docker, no database: reads the `.xlsx` straight off disk and serves a
+dashboard in your browser.
 
 ```bash
-git clone <este-repo> && cd worldcup-match-ratings
+git clone <this-repo> && cd worldcup-match-ratings
 python3 -m venv .venv && .venv/bin/pip install -r requirements.txt
 .venv/bin/python run.py Notas_da_Copa_2026.xlsx
 ```
 
-Abre sozinho em `http://127.0.0.1:8420`. Edite a planilha e dê refresh no
-navegador — os dados são relidos automaticamente (sem precisar reiniciar).
-Para usar a sua própria: `.venv/bin/python run.py caminho/para/sua-planilha.xlsx`.
+Opens on its own at `http://127.0.0.1:8420`. Edit the spreadsheet and
+refresh the browser — the data is re-read automatically (no restart
+needed). To use your own: `.venv/bin/python run.py path/to/your-spreadsheet.xlsx`.
 
-Este é o modo recomendado para quem só quer testar com a própria planilha.
-O dashboard tem um botão **EN/PT** no canto superior direito — a planilha
-continua em português por baixo, mas a interface (times, fases, quesitos,
-textos) é traduzida na hora, sem recarregar a página.
+This is the recommended mode if you just want to try it with your own
+spreadsheet. The dashboard has an **EN/PT** button in the top-right corner
+— the spreadsheet itself stays in Portuguese underneath, but the interface
+(teams, phases, criteria, text) is translated on the fly, no page reload.
 
-> **Debian/Ubuntu:** se `python3 -m venv .venv` falhar com "ensurepip is not
-> available", falta o pacote de venv da sua versão do sistema —
-> `sudo apt install python3.10-venv` (ajuste a versão) resolve.
+> **Debian/Ubuntu:** if `python3 -m venv .venv` fails with "ensurepip is
+> not available", your system is missing that Python version's venv
+> package — `sudo apt install python3.10-venv` (adjust the version)
+> fixes it.
 
-## Modo hospedado
+## Hosted mode
 
-Mesmo código de agregação, mas os dados ficam persistidos em Postgres
-(schema `match_ratings`) e a API/dashboard leem de lá em vez do `.xlsx`
-diretamente — pensado para a minha própria instância publicada, reusando a
-infraestrutura já existente. Ver [`DEPLOY.md`](DEPLOY.md) para como isso se
-liga ao `jvmello-infra`, e `scripts/import_xlsx_to_db.py` para o import
-idempotente planilha → Postgres.
+Same aggregation code, but the data is persisted in Postgres (schema
+`match_ratings`) and the API/dashboard read from there instead of the
+`.xlsx` directly — meant for my own published instance, reusing existing
+infrastructure. See [`DEPLOY.md`](DEPLOY.md) for how this wires into
+`jvmello-infra`, and `scripts/import_xlsx_to_db.py` for the idempotent
+spreadsheet → Postgres import.
 
-## Estrutura
+## Structure
 
 ```
 src/match_ratings/
-  models.py       # Match, CriteriaWeight, ColorBand — estruturas puras
-  xlsx_loader.py  # planilha -> models (pesos, faixas de cor e notas são lidos, nunca recalculados)
-  aggregate.py    # resumo, top notas, por time, por quesito — mesma lógica local e hospedado
-  data_source.py  # a única costura entre "de onde vêm os dados" (xlsx local ou Postgres) e o resto
-  api.py          # FastAPI compartilhada pelos dois modos
-  db/             # schema, loader e importer do modo hospedado
-webapp/           # dashboard estático (HTML/CSS/JS puro, sem build step)
-  i18n.js         # tradução PT/EN da interface (times, fases, quesitos, textos), só de exibição
-run.py            # entrypoint do modo local
-hosted.py         # entrypoint do modo hospedado
-tests/            # valida o loader e as agregações contra a planilha real
+  models.py       # Match, CriteriaWeight, ColorBand — plain data structures
+  xlsx_loader.py  # spreadsheet -> models (weights, color bands, and scores are read, never recomputed)
+  aggregate.py    # summary, top ratings, by team, by criterion — same logic for local and hosted
+  data_source.py  # the one seam between "where the data comes from" (local xlsx or Postgres) and everything else
+  api.py          # FastAPI app shared by both modes
+  db/             # schema, loader, and importer for hosted mode
+webapp/           # static dashboard (plain HTML/CSS/JS, no build step)
+  i18n.js         # PT/EN interface translation (teams, phases, criteria, text), display-only
+run.py            # local mode entrypoint
+hosted.py         # hosted mode entrypoint
+tests/            # validates the loader and aggregations against the real spreadsheet
 ```
 
-## Rodando os testes
+## Running the tests
 
 ```bash
 .venv/bin/pip install -r requirements-dev.txt
 .venv/bin/pytest
 ```
+
+---
+
+More projects at [jvmello.dev](https://jvmello.dev).
