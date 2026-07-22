@@ -9,6 +9,7 @@ RUN pip install --no-cache-dir -r requirements-hosted.txt
 
 COPY src/ src/
 COPY webapp/ webapp/
+COPY scripts/ scripts/
 COPY hosted.py ./
 
 EXPOSE 8000
