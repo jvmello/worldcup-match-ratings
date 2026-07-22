@@ -51,6 +51,11 @@ function applyStaticTranslations() {
   document.querySelectorAll("[data-i18n-criterion]").forEach((el) => {
     el.textContent = translateCriterionAbbr(el.dataset.i18nCriterion);
   });
+  // Only for strings that legitimately contain markup (e.g. a link) — these
+  // are fixed developer-authored strings in i18n.js, never user input.
+  document.querySelectorAll("[data-i18n-html]").forEach((el) => {
+    el.innerHTML = t(el.dataset.i18nHtml);
+  });
 }
 
 document.getElementById("lang-toggle").addEventListener("click", () => {

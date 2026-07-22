@@ -84,6 +84,16 @@ body {
 
 main { max-width: 1080px; margin: 0 auto; padding: 24px; }
 
+.site-footer {
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: 8px 24px 32px;
+  text-align: center;
+  font-size: 0.82rem;
+  color: var(--text-muted);
+}
+.site-footer a { color: var(--text-secondary); }
+
 .view { display: none; }
 .view.active { display: block; }
 

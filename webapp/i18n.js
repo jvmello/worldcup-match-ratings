@@ -42,6 +42,7 @@ const UI_STRINGS = {
     empty_no_tens: "Nenhuma partida com nota 10 aqui ainda.",
     error_prefix: "Erro ao carregar dados: ",
     lang_toggle: "EN",
+    footer_credit: 'Feito por <a href="https://jvmello.dev">jvmello.dev</a>',
   },
   en: {
     title: "2026 World Cup Match Ratings",
@@ -80,6 +81,7 @@ const UI_STRINGS = {
     empty_no_tens: "No matches with a perfect 10 here yet.",
     error_prefix: "Error loading data: ",
     lang_toggle: "PT",
+    footer_credit: 'Made by <a href="https://jvmello.dev">jvmello.dev</a>',
   },
 };
 
