@@ -181,11 +181,15 @@ tbody tr.top10 td:first-child { font-weight: 700; }
 .hint { color: var(--text-muted); font-size: 0.82rem; margin: -6px 0 14px; }
 
 .tens-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
   gap: 12px;
 }
 .tens-card {
+  flex: 1 1 260px;
+  max-width: 340px;
+  min-width: 0;
   border: 1px solid var(--border);
   border-radius: 10px;
   padding: 12px 14px;
@@ -212,6 +216,5 @@ tbody tr.top10 td:first-child { font-weight: 700; }
   padding: 3px 10px 3px 10px;
   font-size: 0.78rem;
   color: var(--text-secondary);
-  white-space: nowrap;
 }
 .empty-inline { color: var(--text-muted); font-size: 0.82rem; }
